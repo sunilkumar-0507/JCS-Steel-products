@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Elegant Script Logo Font -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kristi&display=swap">
+  <!-- Primary Meta Tags -->
+  <title>JCS Home | Factory-Direct Stainless Steel Kitchenware from Chennai</title>
+  <meta name="title" content="JCS Home | Factory-Direct Stainless Steel Kitchenware from Chennai" />
+  <meta name="description"
+    content="Premium 304 food-grade stainless steel kitchenware direct from our Chennai factory. Bottles, tiffins, drinkware & more. Factory-direct pricing, built to last forever." />
+  <meta name="keywords"
+    content="stainless steel kitchenware, steel bottles India, tiffin boxes Chennai, JCS Home, factory direct kitchenware, premium cookware, eco-friendly containers" />
+  <meta name="author" content="JCS Home" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://jcshome.in/" />
+  <meta property="og:title" content="JCS Home | Factory-Direct Stainless Steel Kitchenware from Chennai" />
+  <meta property="og:description"
+    content="Premium 304 food-grade stainless steel kitchenware direct from our Chennai factory. Bottles, tiffins, drinkware & more. Factory-direct pricing, built to last forever." />
+  <meta property="og:image" content="/og-image.png" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://jcshome.in/" />
+  <meta property="twitter:title" content="JCS Home | Factory-Direct Stainless Steel Kitchenware from Chennai" />
+  <meta property="twitter:description"
+    content="Premium 304 food-grade stainless steel kitchenware direct from our Chennai factory. Bottles, tiffins, drinkware & more. Factory-direct pricing, built to last forever." />
+  <meta property="twitter:image" content="/og-image.png" />
+  <script type="module" crossorigin src="/assets/index-CoXfNgXG.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-aAojfOyi.css">
+</head>
+
+<body>
+  <div id="root"></div>
+</body>
+
+</html>
