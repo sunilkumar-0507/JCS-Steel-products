@@ -11,10 +11,13 @@ import {
   TrendingUp,
   ArrowUpRight,
   Search,
+  Plus,
+  Trash2,
+  X,
 } from "lucide-react";
 import logo from "@/assets/jcs-home-logo.png";
 import { useStore } from "@/context/StoreContext";
-import { products, formatPrice } from "@/data/products";
+import { categories, formatPrice } from "@/data/products";
 import { orders, customers, metrics, statusStyles } from "@/data/admin";
 
 const navItems = [
@@ -119,6 +122,7 @@ export default function Admin() {
 /* ---------- Dashboard ---------- */
 
 function Dashboard() {
+  const { products } = useStore();
   const cards = [
     {
       label: "Total Revenue",
@@ -140,7 +144,7 @@ function Dashboard() {
     },
     {
       label: "Products",
-      value: metrics.products,
+      value: products.length,
       delta: "Live",
       icon: Package,
     },
@@ -191,38 +195,212 @@ function Dashboard() {
 /* ---------- Products ---------- */
 
 function ProductsTable() {
+  const { products, deleteProduct } = useStore();
+  const [showForm, setShowForm] = useState(false);
+
   return (
-    <Card title="Products" subtitle={`${products.length} items in catalog`}>
-      <Table head={["Product", "Category", "Price", "MRP", "Stock", "Rating"]}>
-        {products.map((p) => (
-          <tr key={p.id} className="border-t border-border">
-            <Td>
-              <div className="flex items-center gap-3">
-                <img
-                  src={p.image}
-                  alt={p.name}
-                  className="h-10 w-10 rounded-lg object-cover"
-                />
-                <span className="font-medium">{p.name}</span>
-              </div>
-            </Td>
-            <Td className="capitalize text-muted-foreground">
-              {p.category.replace(/-/g, " ")}
-            </Td>
-            <Td className="font-semibold">{formatPrice(p.price)}</Td>
-            <Td className="text-muted-foreground line-through">
-              {formatPrice(p.compareAt)}
-            </Td>
-            <Td>
-              <span className="inline-flex rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-semibold text-accent">
-                In Stock
-              </span>
-            </Td>
-            <Td>★ {p.rating}</Td>
-          </tr>
-        ))}
-      </Table>
-    </Card>
+    <>
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-sm text-muted-foreground">
+          {products.length} items in catalog
+        </p>
+        <button onClick={() => setShowForm(true)} className="btn-primary">
+          <Plus className="h-4 w-4" /> Add Product
+        </button>
+      </div>
+
+      <Card title="Products" subtitle="Manage your catalog">
+        <Table head={["Product", "Category", "Price", "MRP", "Stock", "Rating", ""]}>
+          {products.map((p) => (
+            <tr key={p.id} className="border-t border-border">
+              <Td>
+                <div className="flex items-center gap-3">
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    className="h-10 w-10 rounded-lg object-cover"
+                  />
+                  <span className="font-medium">{p.name}</span>
+                </div>
+              </Td>
+              <Td className="capitalize text-muted-foreground">
+                {p.category.replace(/-/g, " ")}
+              </Td>
+              <Td className="font-semibold">{formatPrice(p.price)}</Td>
+              <Td className="text-muted-foreground line-through">
+                {p.compareAt ? formatPrice(p.compareAt) : "—"}
+              </Td>
+              <Td>
+                <span className="inline-flex rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-semibold text-accent">
+                  In Stock
+                </span>
+              </Td>
+              <Td>★ {p.rating}</Td>
+              <Td>
+                <button
+                  onClick={() => deleteProduct(p.id)}
+                  className="rounded-lg p-2 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
+                  aria-label={`Delete ${p.name}`}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </Td>
+            </tr>
+          ))}
+        </Table>
+      </Card>
+
+      {showForm && <AddProductModal onClose={() => setShowForm(false)} />}
+    </>
+  );
+}
+
+function AddProductModal({ onClose }) {
+  const { addProduct } = useStore();
+  const [form, setForm] = useState({
+    name: "",
+    category: categories[0].id,
+    price: "",
+    compareAt: "",
+    image: "",
+    badge: "",
+    features: "",
+    description: "",
+  });
+
+  const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    if (!form.name.trim() || !form.price) return;
+    addProduct(form);
+    onClose();
+  };
+
+  const field =
+    "mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary";
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40 p-0 backdrop-blur-sm sm:items-center sm:p-6"
+      onClick={onClose}
+    >
+      <div
+        className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-border bg-card p-6 shadow-xl sm:rounded-3xl sm:p-8"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-2xl">Add Product</h2>
+          <button
+            onClick={onClose}
+            className="rounded-full p-2 text-muted-foreground transition hover:bg-muted"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <form onSubmit={onSubmit} className="mt-6 space-y-4">
+          <label className="block text-sm font-medium">
+            Product name *
+            <input
+              required
+              value={form.name}
+              onChange={set("name")}
+              placeholder="Vacuum Insulated Bottle 750ml"
+              className={field}
+            />
+          </label>
+
+          <label className="block text-sm font-medium">
+            Category
+            <select value={form.category} onChange={set("category")} className={field}>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div className="grid grid-cols-2 gap-4">
+            <label className="block text-sm font-medium">
+              Price (₹) *
+              <input
+                required
+                type="number"
+                min="0"
+                value={form.price}
+                onChange={set("price")}
+                placeholder="899"
+                className={field}
+              />
+            </label>
+            <label className="block text-sm font-medium">
+              MRP / Compare-at (₹)
+              <input
+                type="number"
+                min="0"
+                value={form.compareAt}
+                onChange={set("compareAt")}
+                placeholder="1199"
+                className={field}
+              />
+            </label>
+          </div>
+
+          <label className="block text-sm font-medium">
+            Image URL
+            <input
+              value={form.image}
+              onChange={set("image")}
+              placeholder="https://… (optional, uses a default if blank)"
+              className={field}
+            />
+          </label>
+
+          <label className="block text-sm font-medium">
+            Badge
+            <input
+              value={form.badge}
+              onChange={set("badge")}
+              placeholder="Bestseller (optional)"
+              className={field}
+            />
+          </label>
+
+          <label className="block text-sm font-medium">
+            Features
+            <input
+              value={form.features}
+              onChange={set("features")}
+              placeholder="24hr Cold, Double-Wall, Leak-Proof (comma separated)"
+              className={field}
+            />
+          </label>
+
+          <label className="block text-sm font-medium">
+            Description
+            <textarea
+              rows={3}
+              value={form.description}
+              onChange={set("description")}
+              placeholder="Short product description…"
+              className={field}
+            />
+          </label>
+
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={onClose} className="btn-outline flex-1">
+              Cancel
+            </button>
+            <button type="submit" className="btn-primary flex-1">
+              <Plus className="h-4 w-4" /> Add Product
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
 

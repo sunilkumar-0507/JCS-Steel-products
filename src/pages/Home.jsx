@@ -15,7 +15,8 @@ import {
 } from "lucide-react";
 import { SectionHeading } from "@/components/ui.jsx";
 import ProductCard from "@/components/ProductCard.jsx";
-import { products, categories } from "@/data/products";
+import { useStore } from "@/context/StoreContext";
+import { categories } from "@/data/products";
 import heroPremium from "@/assets/hero-premium.jpg";
 import rawMaterial from "@/assets/raw-material.jpg";
 import factoryProcess from "@/assets/factory-process.jpg";
@@ -96,6 +97,7 @@ const stats = [
 ];
 
 export default function Home() {
+  const { products } = useStore();
   const featured = products.slice(0, 8);
 
   return (

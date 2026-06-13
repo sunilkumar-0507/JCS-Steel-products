@@ -14,12 +14,7 @@ import {
 } from "lucide-react";
 import { Crumbs } from "@/components/ui.jsx";
 import ProductCard from "@/components/ProductCard.jsx";
-import {
-  getProduct,
-  getCategory,
-  getByCategory,
-  formatPrice,
-} from "@/data/products";
+import { getCategory, formatPrice } from "@/data/products";
 import { useStore } from "@/context/StoreContext";
 
 const perks = [
@@ -30,9 +25,9 @@ const perks = [
 
 export default function ProductDetail() {
   const { id } = useParams();
-  const product = getProduct(id);
   const [qty, setQty] = useState(1);
-  const { addToCart, toggleWishlist, inWishlist, toast } = useStore();
+  const { products, addToCart, toggleWishlist, inWishlist, toast } = useStore();
+  const product = products.find((p) => p.id === id);
 
   if (!product) {
     return (
@@ -46,8 +41,8 @@ export default function ProductDetail() {
   }
 
   const category = getCategory(product.category);
-  const related = getByCategory(product.category)
-    .filter((p) => p.id !== product.id)
+  const related = products
+    .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
   const wished = inWishlist(product.id);
   const discount = product.compareAt

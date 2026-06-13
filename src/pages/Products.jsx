@@ -3,7 +3,8 @@ import { useSearchParams } from "react-router-dom";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { PageHeader } from "@/components/ui.jsx";
 import ProductCard from "@/components/ProductCard.jsx";
-import { products, categories } from "@/data/products";
+import { useStore } from "@/context/StoreContext";
+import { categories } from "@/data/products";
 
 const sortOptions = [
   { value: "featured", label: "Featured" },
@@ -13,6 +14,7 @@ const sortOptions = [
 ];
 
 export default function Products() {
+  const { products } = useStore();
   const [params, setParams] = useSearchParams();
   const initialQ = params.get("q") || "";
   const [query, setQuery] = useState(initialQ);
@@ -34,7 +36,7 @@ export default function Products() {
     if (sort === "price-desc") list.sort((a, b) => b.price - a.price);
     if (sort === "rating") list.sort((a, b) => b.rating - a.rating);
     return list;
-  }, [query, cat, sort]);
+  }, [products, query, cat, sort]);
 
   return (
     <>

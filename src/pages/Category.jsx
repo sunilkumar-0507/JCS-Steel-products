@@ -2,12 +2,14 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Crumbs } from "@/components/ui.jsx";
 import ProductCard from "@/components/ProductCard.jsx";
-import { getByCategory, getCategory } from "@/data/products";
+import { useStore } from "@/context/StoreContext";
+import { getCategory } from "@/data/products";
 
 export default function Category() {
   const { id } = useParams();
+  const { products } = useStore();
   const category = getCategory(id);
-  const items = getByCategory(id);
+  const items = products.filter((p) => p.category === id);
 
   if (!category) {
     return (
