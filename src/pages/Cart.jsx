@@ -1,10 +1,15 @@
-import { Link } from "react-router-dom";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, ShieldCheck } from "lucide-react";
-import { formatPrice } from "@/data/products";
+import { Link, useNavigate } from "react-router-dom";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, ShieldCheck, Truck } from "lucide-react";
+import { formatPrice } from "@/lib/api";
+import { productImage } from "@/lib/images";
 import { useStore } from "@/context/StoreContext";
 
+const FREE_SHIPPING_THRESHOLD = 999;
+const FLAT_SHIPPING_FEE = 49;
+
 export default function Cart() {
-  const { cart, updateQty, removeFromCart, clearCart, cartTotal, toast } = useStore();
+  const { cart, updateQty, removeFromCart, clearCart, cartTotal } = useStore();
+  const navigate = useNavigate();
 
   if (cart.length === 0) {
     return (
@@ -21,6 +26,10 @@ export default function Cart() {
     );
   }
 
+  // Mirrors the server's rule; the API recomputes it authoritatively at checkout.
+  const shippingFee = cartTotal >= FREE_SHIPPING_THRESHOLD ? 0 : FLAT_SHIPPING_FEE;
+  const shortfall = FREE_SHIPPING_THRESHOLD - cartTotal;
+
   return (
     <div className="container-px py-12">
       <h1 className="font-display text-3xl sm:text-4xl">Shopping Cart</h1>
@@ -30,47 +39,65 @@ export default function Cart() {
         <div className="space-y-4">
           {cart.map((item) => (
             <div
-              key={item.id}
+              key={item.productId}
               className="flex gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm"
             >
-              <Link to={`/product/${item.id}`} className="shrink-0">
+              <Link to={`/product/${item.productId}`} className="shrink-0">
                 <img
-                  src={item.image}
+                  src={productImage({ id: item.productId, image: item.image })}
                   alt={item.name}
                   className="h-24 w-24 rounded-xl object-cover"
                 />
               </Link>
               <div className="flex flex-1 flex-col">
                 <div className="flex items-start justify-between gap-3">
-                  <Link to={`/product/${item.id}`} className="font-display text-lg hover:text-primary">
+                  <Link
+                    to={`/product/${item.productId}`}
+                    className="font-display text-lg hover:text-primary"
+                  >
                     {item.name}
                   </Link>
                   <button
-                    onClick={() => removeFromCart(item.id)}
+                    onClick={() => removeFromCart(item.productId)}
                     className="rounded-full p-1.5 text-muted-foreground transition hover:bg-muted hover:text-destructive"
-                    aria-label="Remove"
+                    aria-label={`Remove ${item.name}`}
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
-                <p className="text-sm text-muted-foreground">{formatPrice(item.price)} each</p>
+                <p className="text-sm text-muted-foreground">
+                  {formatPrice(item.price)} each
+                </p>
                 <div className="mt-auto flex items-center justify-between pt-3">
                   <div className="flex items-center rounded-full border border-border">
-                    <button onClick={() => updateQty(item.id, item.qty - 1)} className="p-2" aria-label="Decrease">
+                    <button
+                      onClick={() => updateQty(item.productId, item.quantity - 1)}
+                      className="p-2"
+                      aria-label="Decrease"
+                    >
                       <Minus className="h-3.5 w-3.5" />
                     </button>
-                    <span className="w-8 text-center text-sm font-semibold">{item.qty}</span>
-                    <button onClick={() => updateQty(item.id, item.qty + 1)} className="p-2" aria-label="Increase">
+                    <span className="w-8 text-center text-sm font-semibold">
+                      {item.quantity}
+                    </span>
+                    <button
+                      onClick={() => updateQty(item.productId, item.quantity + 1)}
+                      className="p-2"
+                      aria-label="Increase"
+                    >
                       <Plus className="h-3.5 w-3.5" />
                     </button>
                   </div>
-                  <span className="font-bold">{formatPrice(item.price * item.qty)}</span>
+                  <span className="font-bold">{formatPrice(item.lineTotal)}</span>
                 </div>
               </div>
             </div>
           ))}
 
-          <button onClick={clearCart} className="text-sm font-medium text-muted-foreground hover:text-destructive">
+          <button
+            onClick={() => clearCart()}
+            className="text-sm font-medium text-muted-foreground hover:text-destructive"
+          >
             Clear cart
           </button>
         </div>
@@ -78,18 +105,37 @@ export default function Cart() {
         {/* summary */}
         <aside className="h-fit rounded-2xl border border-border bg-card p-6 shadow-sm lg:sticky lg:top-28">
           <h2 className="font-display text-xl">Order Summary</h2>
+
+          {shortfall > 0 && (
+            <div className="mt-4 flex items-start gap-2 rounded-xl bg-secondary/60 p-3 text-xs">
+              <Truck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <span>
+                Add <strong>{formatPrice(shortfall)}</strong> more to unlock free shipping.
+              </span>
+            </div>
+          )}
+
           <div className="mt-4 space-y-3 text-sm">
             <Row label="Subtotal" value={formatPrice(cartTotal)} />
-            <Row label="Shipping" value={<span className="text-accent">Free</span>} />
+            <Row
+              label="Shipping"
+              value={
+                shippingFee === 0 ? (
+                  <span className="text-accent">Free</span>
+                ) : (
+                  formatPrice(shippingFee)
+                )
+              }
+            />
             <div className="border-t border-border pt-3">
-              <Row label="Total" value={formatPrice(cartTotal)} bold />
-              <p className="mt-1 text-xs text-muted-foreground">Inclusive of all taxes</p>
+              <Row label="Total" value={formatPrice(cartTotal + shippingFee)} bold />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Inclusive of all taxes · apply a coupon at checkout
+              </p>
             </div>
           </div>
-          <button
-            onClick={() => toast("Checkout coming soon")}
-            className="btn-primary mt-6 w-full"
-          >
+
+          <button onClick={() => navigate("/checkout")} className="btn-primary mt-6 w-full">
             Proceed to Checkout <ArrowRight className="h-4 w-4" />
           </button>
           <Link to="/products" className="btn-outline mt-3 w-full">

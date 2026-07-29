@@ -42,10 +42,10 @@ const groups = [
       },
       {
         q: "Do you sell on Amazon or Flipkart?",
-        a: "Currently, we sell exclusively through our website jcshome.in. This allows us to offer the best prices directly to you. We may expand to marketplaces in the future, but our website will always have the best deals.",
+        a: "Currently, we sell exclusively through our website dailypans.in. This allows us to offer the best prices directly to you. We may expand to marketplaces in the future, but our website will always have the best deals.",
       },
       {
-        q: "Why should I buy from JCS Home instead of other brands?",
+        q: "Why should I buy from Daily Pans instead of other brands?",
         a: "We are the actual manufacturer. We manufacture everything in-house — no middlemen means better prices and quality you can trust for generations.",
       },
     ],
@@ -135,7 +135,7 @@ export default function Faq() {
       <PageHeader
         eyebrow="Help Center"
         title="Frequently Asked Questions"
-        subtitle="Find answers to common questions about JCS Home products, ordering, shipping, returns, warranty, and more."
+        subtitle="Find answers to common questions about Daily Pans products, ordering, shipping, returns, warranty, and more."
       />
 
       <section className="section">
@@ -160,7 +160,7 @@ export default function Faq() {
               <a href="tel:+919360733544" className="btn-primary">
                 <Phone className="h-4 w-4" /> Call +91 93607 33544
               </a>
-              <a href="mailto:hello@jcshome.in" className="btn-outline">
+              <a href="mailto:hello@dailypans.in" className="btn-outline">
                 <Mail className="h-4 w-4" /> Email Support
               </a>
             </div>

@@ -1,15 +1,31 @@
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { Crumbs } from "@/components/ui.jsx";
+import { Crumbs, ProductGridSkeleton, ErrorState } from "@/components/ui.jsx";
 import ProductCard from "@/components/ProductCard.jsx";
 import { useStore } from "@/context/StoreContext";
-import { getCategory } from "@/data/products";
+import { categoryImage } from "@/lib/images";
 
 export default function Category() {
   const { id } = useParams();
-  const { products } = useStore();
+  const { products, getCategory, catalogLoading, catalogError, reloadCatalog } = useStore();
   const category = getCategory(id);
-  const items = products.filter((p) => p.category === id);
+  const items = products.filter((p) => p.categoryId === id);
+
+  if (catalogLoading) {
+    return (
+      <div className="container-px py-16">
+        <ProductGridSkeleton />
+      </div>
+    );
+  }
+
+  if (catalogError) {
+    return (
+      <div className="container-px py-16">
+        <ErrorState message={catalogError} onRetry={reloadCatalog} />
+      </div>
+    );
+  }
 
   if (!category) {
     return (
@@ -27,7 +43,11 @@ export default function Category() {
       {/* hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
-          <img src={category.image} alt={category.name} className="h-full w-full object-cover" />
+          <img
+            src={categoryImage(category)}
+            alt={category.name}
+            className="h-full w-full object-cover"
+          />
           <div className="absolute inset-0 bg-foreground/65" />
         </div>
         <div className="container-px relative py-20 text-center text-background sm:py-28">

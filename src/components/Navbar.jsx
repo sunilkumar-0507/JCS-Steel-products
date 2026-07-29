@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { ShoppingBag, Heart, User, Menu, X, Search, LayoutDashboard } from "lucide-react";
-import logo from "@/assets/jcs-home-logo.png";
+import LogoMark from "@/components/Logo.jsx";
 import { useStore } from "@/context/StoreContext";
 
 const navLinks = [
@@ -32,15 +32,15 @@ export default function Navbar() {
       {/* announcement bar */}
       <div className="bg-foreground text-background">
         <div className="container-px flex items-center justify-center py-2 text-center text-xs font-medium tracking-wide">
-          Factory-Direct Pricing · Free Shipping Across India · 2-Year Warranty
+          Factory-Direct Pricing · Free Shipping Over ₹999 · 2-Year Warranty
         </div>
       </div>
 
       <div className="container-px flex h-20 items-center justify-between gap-4">
         <Link to="/" className="flex items-center gap-3">
-          <img src={logo} alt="JCS Home" className="h-11 w-auto" />
+          <LogoMark className="h-11 w-11 shrink-0" />
           <div className="leading-none">
-            <span className="block logo-script text-3xl text-primary">JCS Home</span>
+            <span className="block logo-script text-3xl text-primary">Daily Pans</span>
             <span className="block text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
               Stainless Steel Kitchenware
             </span>

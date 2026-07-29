@@ -13,10 +13,10 @@ import {
   Sparkles,
   Thermometer,
 } from "lucide-react";
-import { SectionHeading } from "@/components/ui.jsx";
+import { SectionHeading, ProductGridSkeleton, ErrorState } from "@/components/ui.jsx";
 import ProductCard from "@/components/ProductCard.jsx";
 import { useStore } from "@/context/StoreContext";
-import { categories } from "@/data/products";
+import { categoryImage } from "@/lib/images";
 import heroPremium from "@/assets/hero-premium.jpg";
 import rawMaterial from "@/assets/raw-material.jpg";
 import factoryProcess from "@/assets/factory-process.jpg";
@@ -97,8 +97,11 @@ const stats = [
 ];
 
 export default function Home() {
-  const { products } = useStore();
-  const featured = products.slice(0, 8);
+  const { products, categories, catalogLoading, catalogError, reloadCatalog } = useStore();
+  // Highest-rated first — mirrors the API's "featured" ordering.
+  const featured = [...products]
+    .sort((a, b) => b.rating - a.rating || b.reviews - a.reviews)
+    .slice(0, 8);
 
   return (
     <>
@@ -164,7 +167,7 @@ export default function Home() {
           {/* Pill bar */}
           <div className="mt-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 rounded-full border border-white/15 bg-foreground/30 px-6 py-3 text-sm font-medium text-white backdrop-blur">
             <span className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-accent" /> Free Shipping ₹499+
+              <span className="h-2 w-2 rounded-full bg-accent" /> Free Shipping ₹999+
             </span>
             <span className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-primary" /> 2-Year Warranty
@@ -205,7 +208,7 @@ export default function Home() {
               >
                 <div className="aspect-[4/3] overflow-hidden">
                   <img
-                    src={c.image}
+                    src={categoryImage(c)}
                     alt={c.name}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
@@ -216,6 +219,9 @@ export default function Home() {
                     {c.tagline}
                   </p>
                   <h3 className="mt-1 font-display text-2xl">{c.name}</h3>
+                  <p className="text-xs text-background/70">
+                    {c.productCount} {c.productCount === 1 ? "product" : "products"}
+                  </p>
                   <span className="mt-2 inline-flex items-center gap-1 text-sm font-medium opacity-0 transition group-hover:opacity-100">
                     Shop now <ArrowRight className="h-4 w-4" />
                   </span>
@@ -239,18 +245,26 @@ export default function Home() {
               View all products <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-          <div className="mt-12 grid grid-cols-2 gap-5 lg:grid-cols-4">
-            {featured.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
+          <div className="mt-12">
+            {catalogLoading ? (
+              <ProductGridSkeleton />
+            ) : catalogError ? (
+              <ErrorState message={catalogError} onRetry={reloadCatalog} />
+            ) : (
+              <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
+                {featured.map((p) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
 
-      {/* VALUE PROPS / THE JCS DIFFERENCE */}
+      {/* VALUE PROPS / THE DAILY PANS DIFFERENCE */}
       <section className="section">
         <div className="container-px">
-          <p className="eyebrow text-accent">The JCS Difference</p>
+          <p className="eyebrow text-accent">The Daily Pans Difference</p>
           <h2 className="mt-3 max-w-xl font-display text-3xl leading-tight sm:text-4xl">
             Why we're not just another kitchenware brand
           </h2>
@@ -277,7 +291,7 @@ export default function Home() {
             title="From raw steel to your kitchen"
           />
           <p className="mx-auto mt-3 max-w-2xl text-center text-background/70">
-            Every JCS Home product goes through a meticulous process to ensure the
+            Every Daily Pans product goes through a meticulous process to ensure the
             highest quality reaches your hands.
           </p>
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -353,7 +367,7 @@ export default function Home() {
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-primary-foreground/80">
               Shop our collection of factory-direct stainless steel kitchenware and
-              discover why thousands trust JCS Home.
+              discover why thousands trust Daily Pans.
             </p>
             <Link
               to="/products"

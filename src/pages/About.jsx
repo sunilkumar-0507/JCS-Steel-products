@@ -8,8 +8,8 @@ import rawMaterial from "@/assets/raw-material.jpg";
 const timeline = [
   {
     year: "2021",
-    title: "JCS Enterprises Founded",
-    text: "In 2021, we established JCS Enterprises in Gummidipoondi, a thriving industrial hub just north of Chennai. Our mission was clear: to become a trusted name in precision metal manufacturing.",
+    title: "Our Factory Opened",
+    text: "In 2021, we set up our metal-pressing works in Gummidipoondi, a thriving industrial hub just north of Chennai. Our mission was clear: to become a trusted name in precision metal manufacturing.",
   },
   {
     year: "2022",
@@ -23,7 +23,7 @@ const timeline = [
   },
   {
     year: "2024",
-    title: "JCS Home is Born",
+    title: "Daily Pans is Born",
     text: "Launched direct-to-consumer kitchenware brand, bringing factory-direct quality straight to Indian kitchens.",
   },
 ];
@@ -57,22 +57,22 @@ export default function About() {
       <PageHeader
         eyebrow="Our Story"
         title="From Factory Floor to Your Kitchen"
-        subtitle="Discover the story of JCS Enterprises — from industrial metal manufacturing in Gummidipoondi to premium stainless steel kitchenware for Indian homes."
+        subtitle="Discover the story behind Daily Pans — from industrial metal manufacturing in Gummidipoondi to premium stainless steel kitchenware for Indian homes."
       />
 
       {/* origin */}
       <section className="section">
         <div className="container-px grid items-center gap-12 lg:grid-cols-2">
           <div className="overflow-hidden rounded-3xl shadow-lg">
-            <img src={factoryInterior} alt="JCS Enterprises manufacturing facility" className="aspect-[4/3] w-full object-cover" />
+            <img src={factoryInterior} alt="Daily Pans manufacturing facility" className="aspect-[4/3] w-full object-cover" />
           </div>
           <div>
             <p className="eyebrow">Heritage Meets Precision</p>
             <h2 className="mt-3 font-display text-3xl sm:text-4xl">From industrial engineering to your kitchen table</h2>
             <p className="mt-4 leading-relaxed text-muted-foreground">
-              JCS Enterprises was founded in Gummidipoondi, Chennai, with a focus on
-              precision metal manufacturing. After years of serving industrial clients,
-              we asked ourselves a simple question:
+              Our factory opened in Gummidipoondi, Chennai, with a focus on precision
+              metal manufacturing. After years of serving industrial clients, we asked
+              ourselves a simple question:
             </p>
             <blockquote className="my-6 border-l-4 border-primary pl-5 font-display text-2xl italic text-foreground">
               "Why should only industries benefit from our expertise?"
@@ -80,7 +80,7 @@ export default function About() {
             <p className="leading-relaxed text-muted-foreground">
               As we honed our craft with high-grade stainless steel, a question emerged:
               why not bring the same precision engineering to Indian kitchens? That
-              question gave birth to JCS Home. We brought the same precision engineering,
+              question gave birth to Daily Pans. We brought the same precision engineering,
               quality control, and material standards to everyday kitchenware.
             </p>
           </div>
@@ -141,7 +141,7 @@ export default function About() {
             <p className="eyebrow">Skilled Hands, Passionate Hearts</p>
             <h2 className="mt-3 font-display text-3xl sm:text-4xl">The people behind every product</h2>
             <p className="mt-4 leading-relaxed text-muted-foreground">
-              Behind every JCS Home product is a team of dedicated professionals who take
+              Behind every Daily Pans product is a team of dedicated professionals who take
               pride in their craft. From our skilled machine operators to our quality
               inspectors, every team member understands the importance of precision and
               attention to detail.
@@ -152,7 +152,7 @@ export default function About() {
             </div>
           </div>
           <div className="order-1 overflow-hidden rounded-3xl shadow-lg lg:order-2">
-            <img src={team} alt="JCS Enterprises team" className="aspect-[4/3] w-full object-cover" />
+            <img src={team} alt="Daily Pans team" className="aspect-[4/3] w-full object-cover" />
           </div>
         </div>
       </section>

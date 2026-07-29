@@ -4,7 +4,7 @@ export default function Privacy() {
   return (
     <PolicyLayout eyebrow="Legal" title="Privacy Policy" updated="December 2024">
       <p className="leading-relaxed text-muted-foreground">
-        JCS Home is committed to protecting your privacy. This policy explains how we
+        Daily Pans is committed to protecting your privacy. This policy explains how we
         collect, use, and protect your personal information. By using our website, you
         consent to the data practices described in this policy. If you do not agree with
         our policies, please do not use our site.
@@ -52,7 +52,7 @@ export default function Privacy() {
       </PolicySection>
 
       <PolicySection title="7. Contact Us">
-        <p>For questions about this Privacy Policy or our data practices, contact us at <a className="text-primary hover:underline" href="mailto:hello@jcshome.in">hello@jcshome.in</a> or call +91 93607 33544.</p>
+        <p>For questions about this Privacy Policy or our data practices, contact us at <a className="text-primary hover:underline" href="mailto:hello@dailypans.in">hello@dailypans.in</a> or call +91 93607 33544.</p>
       </PolicySection>
     </PolicyLayout>
   );

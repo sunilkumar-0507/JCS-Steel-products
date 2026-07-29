@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Daily Pans">
+  <rect width="48" height="48" rx="10" fill="#faf8f5" />
+  <g fill="none" stroke="#d95b2b" stroke-width="3">
+    <path d="M7 21h26v5.5a13 13 0 0 1-13 13 13 13 0 0 1-13-13V21Z" stroke-linejoin="round" />
+    <path d="M33 24h5a4 4 0 0 1 0 8h-2" stroke-linecap="round" />
+    <path d="M15 15c0-3 3-3 3-6M22 15c0-4 3-4 3-8M29 15c0-3 2-3 2-6" stroke-width="2.5" stroke-linecap="round" opacity="0.65" />
+  </g>
+</svg>

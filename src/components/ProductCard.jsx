@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Heart, Star, ShoppingBag } from "lucide-react";
-import { formatPrice } from "@/data/products";
+import { formatPrice } from "@/lib/api";
+import { productImage } from "@/lib/images";
 import { useStore } from "@/context/StoreContext";
 
 export default function ProductCard({ product }) {
@@ -9,13 +10,14 @@ export default function ProductCard({ product }) {
   const discount = product.compareAt
     ? Math.round(((product.compareAt - product.price) / product.compareAt) * 100)
     : 0;
+  const outOfStock = product.stock !== undefined && product.stock <= 0;
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
       <Link to={`/product/${product.id}`} className="relative block overflow-hidden">
         <div className="aspect-square overflow-hidden bg-muted">
           <img
-            src={product.image}
+            src={productImage(product)}
             alt={product.name}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -29,6 +31,11 @@ export default function ProductCard({ product }) {
         {discount > 0 && (
           <span className="absolute right-3 top-3 rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold text-primary-foreground">
             -{discount}%
+          </span>
+        )}
+        {outOfStock && (
+          <span className="absolute inset-x-0 bottom-0 bg-foreground/80 py-1.5 text-center text-[11px] font-bold uppercase tracking-wide text-background">
+            Out of stock
           </span>
         )}
       </Link>
@@ -72,8 +79,9 @@ export default function ProductCard({ product }) {
           </div>
           <button
             onClick={() => addToCart(product)}
+            disabled={outOfStock}
             aria-label="Add to cart"
-            className="rounded-full bg-primary p-2.5 text-primary-foreground shadow-sm transition hover:brightness-110"
+            className="rounded-full bg-primary p-2.5 text-primary-foreground shadow-sm transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <ShoppingBag className="h-4 w-4" />
           </button>

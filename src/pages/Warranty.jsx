@@ -35,7 +35,7 @@ export default function Warranty() {
   return (
     <PolicyLayout eyebrow="Quality Promise" title="Warranty & Care" updated="December 2024">
       <p className="leading-relaxed text-muted-foreground">
-        Every JCS Home product is backed by our quality guarantee. We stand behind the
+        Every Daily Pans product is backed by our quality guarantee. We stand behind the
         craftsmanship and durability of our stainless steel kitchenware. We offer up to 2
         years warranty against manufacturing defects, depending on the product.
       </p>
@@ -113,7 +113,7 @@ export default function Warranty() {
         <ShieldCheck className="h-6 w-6 text-primary" />
         <p className="text-sm">
           Warranty questions? For warranty claims, contact us at{" "}
-          <a className="text-primary hover:underline" href="mailto:hello@jcshome.in">hello@jcshome.in</a> or +91 93607 33544.
+          <a className="text-primary hover:underline" href="mailto:hello@dailypans.in">hello@dailypans.in</a> or +91 93607 33544.
         </p>
       </div>
     </PolicyLayout>

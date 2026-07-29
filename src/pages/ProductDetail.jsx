@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   Star,
@@ -11,14 +11,16 @@ import {
   RotateCcw,
   CheckCircle2,
   Share2,
+  MessageSquarePlus,
 } from "lucide-react";
-import { Crumbs } from "@/components/ui.jsx";
+import { Crumbs, Loader, ErrorState } from "@/components/ui.jsx";
 import ProductCard from "@/components/ProductCard.jsx";
-import { getCategory, formatPrice } from "@/data/products";
 import { useStore } from "@/context/StoreContext";
+import { api, formatPrice, formatDate } from "@/lib/api";
+import { productImage } from "@/lib/images";
 
 const perks = [
-  { icon: Truck, label: "Free shipping across India" },
+  { icon: Truck, label: "Free shipping across India on orders over ₹999" },
   { icon: ShieldCheck, label: "2-year warranty on manufacturing defects" },
   { icon: RotateCcw, label: "Easy 7-day returns" },
 ];
@@ -26,8 +28,43 @@ const perks = [
 export default function ProductDetail() {
   const { id } = useParams();
   const [qty, setQty] = useState(1);
-  const { products, addToCart, toggleWishlist, inWishlist, toast } = useStore();
+  const {
+    products,
+    getCategory,
+    catalogLoading,
+    catalogError,
+    reloadCatalog,
+    addToCart,
+    toggleWishlist,
+    inWishlist,
+    user,
+    toast,
+    reportError,
+  } = useStore();
+
+  const [reviews, setReviews] = useState([]);
   const product = products.find((p) => p.id === id);
+
+  useEffect(() => {
+    let cancelled = false;
+    setReviews([]);
+    api
+      .reviews(id)
+      .then((r) => !cancelled && setReviews(r || []))
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  if (catalogLoading) return <Loader label="Loading product…" />;
+  if (catalogError) {
+    return (
+      <div className="container-px py-16">
+        <ErrorState message={catalogError} onRetry={reloadCatalog} />
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -40,18 +77,32 @@ export default function ProductDetail() {
     );
   }
 
-  const category = getCategory(product.category);
+  const category = getCategory(product.categoryId);
   const related = products
-    .filter((p) => p.category === product.category && p.id !== product.id)
+    .filter((p) => p.categoryId === product.categoryId && p.id !== product.id)
     .slice(0, 4);
   const wished = inWishlist(product.id);
   const discount = product.compareAt
     ? Math.round(((product.compareAt - product.price) / product.compareAt) * 100)
     : 0;
+  const outOfStock = product.stock <= 0;
 
   const share = () => {
     navigator.clipboard?.writeText(window.location.href);
     toast("Link copied to clipboard");
+  };
+
+  const submitReview = async (payload) => {
+    try {
+      await api.addReview(product.id, payload);
+      setReviews(await api.reviews(product.id));
+      reloadCatalog(); // rating + review count are recomputed server-side
+      toast("Thanks for your review!");
+      return true;
+    } catch (err) {
+      reportError(err, "Could not submit your review.");
+      return false;
+    }
   };
 
   return (
@@ -60,7 +111,7 @@ export default function ProductDetail() {
         items={[
           { label: "Home", to: "/" },
           { label: "Products", to: "/products" },
-          { label: category?.name, to: `/category/${product.category}` },
+          { label: category?.name, to: `/category/${product.categoryId}` },
           { label: product.name },
         ]}
       />
@@ -69,7 +120,11 @@ export default function ProductDetail() {
         <div className="container-px grid gap-10 lg:grid-cols-2">
           {/* image */}
           <div className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
-            <img src={product.image} alt={product.name} className="aspect-square w-full object-cover" />
+            <img
+              src={productImage(product)}
+              alt={product.name}
+              className="aspect-square w-full object-cover"
+            />
             {product.badge && (
               <span className="absolute left-4 top-4 rounded-full bg-foreground px-3 py-1 text-xs font-bold uppercase tracking-wide text-background">
                 {product.badge}
@@ -85,18 +140,7 @@ export default function ProductDetail() {
             <h1 className="mt-2 font-display text-3xl sm:text-4xl">{product.name}</h1>
 
             <div className="mt-3 flex items-center gap-2">
-              <div className="flex">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`h-4 w-4 ${
-                      i < Math.round(product.rating)
-                        ? "fill-primary text-primary"
-                        : "text-border"
-                    }`}
-                  />
-                ))}
-              </div>
+              <Stars rating={product.rating} />
               <span className="text-sm font-medium">{product.rating}</span>
               <span className="text-sm text-muted-foreground">
                 ({product.reviews} reviews)
@@ -120,13 +164,21 @@ export default function ProductDetail() {
             </div>
             <p className="mt-1 text-xs text-muted-foreground">Inclusive of all taxes</p>
 
-            <p className="mt-5 leading-relaxed text-muted-foreground">
-              {product.description}
+            <p className="mt-2 text-sm font-medium">
+              {outOfStock ? (
+                <span className="text-destructive">Out of stock</span>
+              ) : product.stock <= 10 ? (
+                <span className="text-amber-600">Only {product.stock} left in stock</span>
+              ) : (
+                <span className="text-accent">In stock</span>
+              )}
             </p>
+
+            <p className="mt-5 leading-relaxed text-muted-foreground">{product.description}</p>
 
             {/* features */}
             <div className="mt-6 flex flex-wrap gap-2">
-              {product.features.map((f) => (
+              {(product.features || []).map((f) => (
                 <span
                   key={f}
                   className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/50 px-3 py-1.5 text-xs font-medium"
@@ -148,7 +200,7 @@ export default function ProductDetail() {
                 </button>
                 <span className="w-10 text-center font-semibold">{qty}</span>
                 <button
-                  onClick={() => setQty((q) => q + 1)}
+                  onClick={() => setQty((q) => Math.min(product.stock || 99, q + 1))}
                   className="p-3 text-foreground hover:text-primary"
                   aria-label="Increase"
                 >
@@ -158,9 +210,11 @@ export default function ProductDetail() {
 
               <button
                 onClick={() => addToCart(product, qty)}
-                className="btn-primary flex-1 min-w-[180px]"
+                disabled={outOfStock}
+                className="btn-primary min-w-[180px] flex-1 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <ShoppingBag className="h-4 w-4" /> Add to cart
+                <ShoppingBag className="h-4 w-4" />
+                {outOfStock ? "Out of stock" : "Add to cart"}
               </button>
 
               <button
@@ -172,7 +226,11 @@ export default function ProductDetail() {
               >
                 <Heart className={`h-5 w-5 ${wished ? "fill-current" : ""}`} />
               </button>
-              <button onClick={share} className="btn rounded-full border border-border p-3" aria-label="Share">
+              <button
+                onClick={share}
+                className="btn rounded-full border border-border p-3"
+                aria-label="Share"
+              >
                 <Share2 className="h-5 w-5" />
               </button>
             </div>
@@ -181,12 +239,59 @@ export default function ProductDetail() {
             <div className="mt-8 space-y-3 rounded-2xl border border-border bg-secondary/40 p-5">
               {perks.map((p) => (
                 <div key={p.label} className="flex items-center gap-3 text-sm">
-                  <p.icon className="h-5 w-5 text-primary" />
+                  <p.icon className="h-5 w-5 shrink-0 text-primary" />
                   <span>{p.label}</span>
                 </div>
               ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* reviews */}
+      <section className="section border-t border-border">
+        <div className="container-px grid gap-10 lg:grid-cols-[1fr_360px]">
+          <div>
+            <h2 className="font-display text-2xl sm:text-3xl">
+              Customer reviews{" "}
+              <span className="text-base font-normal text-muted-foreground">
+                ({reviews.length})
+              </span>
+            </h2>
+            {reviews.length === 0 ? (
+              <p className="mt-6 rounded-2xl border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">
+                No reviews yet — be the first to share your thoughts.
+              </p>
+            ) : (
+              <ul className="mt-6 space-y-4">
+                {reviews.map((r) => (
+                  <li key={r.id} className="rounded-2xl border border-border bg-card p-5">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-sm font-bold">
+                          {(r.authorName || "A").charAt(0)}
+                        </span>
+                        <div>
+                          <p className="text-sm font-semibold">{r.authorName}</p>
+                          <Stars rating={r.rating} size="sm" />
+                        </div>
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDate(r.createdAt)}
+                      </span>
+                    </div>
+                    {r.comment && (
+                      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                        {r.comment}
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <ReviewForm defaultName={user?.name} onSubmit={submitReview} />
         </div>
       </section>
 
@@ -204,5 +309,102 @@ export default function ProductDetail() {
         </section>
       )}
     </>
+  );
+}
+
+function Stars({ rating, size = "md" }) {
+  const cls = size === "sm" ? "h-3 w-3" : "h-4 w-4";
+  return (
+    <div className="flex">
+      {[...Array(5)].map((_, i) => (
+        <Star
+          key={i}
+          className={`${cls} ${
+            i < Math.round(rating) ? "fill-primary text-primary" : "text-border"
+          }`}
+        />
+      ))}
+    </div>
+  );
+}
+
+function ReviewForm({ defaultName, onSubmit }) {
+  const [rating, setRating] = useState(5);
+  const [authorName, setAuthorName] = useState(defaultName || "");
+  const [comment, setComment] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    const ok = await onSubmit({
+      rating,
+      authorName: authorName.trim() || "Anonymous",
+      comment: comment.trim(),
+    });
+    setBusy(false);
+    if (ok) {
+      setComment("");
+      setRating(5);
+    }
+  };
+
+  const field =
+    "mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary";
+
+  return (
+    <form
+      onSubmit={submit}
+      className="h-fit rounded-2xl border border-border bg-card p-6 shadow-sm lg:sticky lg:top-28"
+    >
+      <h3 className="flex items-center gap-2 font-display text-xl">
+        <MessageSquarePlus className="h-5 w-5 text-primary" /> Write a review
+      </h3>
+
+      <div className="mt-4">
+        <span className="text-sm font-medium">Your rating</span>
+        <div className="mt-2 flex gap-1">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <button
+              key={n}
+              type="button"
+              onClick={() => setRating(n)}
+              aria-label={`${n} star${n > 1 ? "s" : ""}`}
+            >
+              <Star
+                className={`h-6 w-6 transition ${
+                  n <= rating ? "fill-primary text-primary" : "text-border hover:text-primary/50"
+                }`}
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <label className="mt-4 block text-sm font-medium">
+        Your name
+        <input
+          value={authorName}
+          onChange={(e) => setAuthorName(e.target.value)}
+          placeholder="Anonymous"
+          className={field}
+        />
+      </label>
+
+      <label className="mt-4 block text-sm font-medium">
+        Your review
+        <textarea
+          rows={4}
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          placeholder="What did you think of this product?"
+          className={`${field} resize-none`}
+        />
+      </label>
+
+      <button disabled={busy} className="btn-primary mt-5 w-full disabled:opacity-60">
+        {busy ? "Submitting…" : "Submit review"}
+      </button>
+    </form>
   );
 }

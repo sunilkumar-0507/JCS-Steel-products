@@ -81,7 +81,7 @@ export default function Returns() {
       </PolicySection>
 
       <PolicySection title="Need Help?">
-        <p>For return or refund queries, contact us at <a className="text-primary hover:underline" href="mailto:hello@jcshome.in">hello@jcshome.in</a> or call +91 93607 33544.</p>
+        <p>For return or refund queries, contact us at <a className="text-primary hover:underline" href="mailto:hello@dailypans.in">hello@dailypans.in</a> or call +91 93607 33544.</p>
       </PolicySection>
     </PolicyLayout>
   );

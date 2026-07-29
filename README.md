@@ -1,40 +1,47 @@
-# JCS Home — React Replica
+# Daily Pans — Storefront + Admin
 
-A faithful React (Vite) replica of [jcshome.vercel.app](https://jcshome.vercel.app/) —
-factory-direct stainless steel kitchenware from Chennai.
+React (Vite) storefront and admin panel for **Daily Pans** — factory-direct stainless
+steel kitchenware from Chennai. All data comes from the Daily Pans REST API
+(ASP.NET Core, in `E:\RestApi(JCS)\JCS Steels`).
 
 ## Tech stack
 
 - **React 18** + **Vite 5**
-- **React Router v6** (14 routes)
-- **Tailwind CSS** (theme tokens taken 1:1 from the original site)
+- **React Router v6**
+- **Tailwind CSS**
 - **lucide-react** icons
-- Cart + wishlist state via React Context (persisted to `localStorage`)
-
-The original site loads products from Shopify; this replica uses **sample product
-data** (`src/data/products.js`) so it runs standalone with no backend or API keys.
-
-## Design system
-
-Lifted directly from the original bundle:
-
-- Fonts: **Fraunces** (display), **DM Sans** (body), **Kristi** (script logo)
-- Primary colour: terracotta `#ff6738` · Accent: teal-green · Warm off-white background
-- All design tokens live in `src/index.css` (`:root`) and `tailwind.config.js`
-
-## Assets
-
-All real images, the logo, favicon, and OG image were downloaded from the live
-site and live in `src/assets/` and `public/`.
+- Catalog, cart, wishlist, auth, orders, coupons and admin data all served by the API
+  (`src/lib/api.js`). Only the auth token and the guest cart id live in `localStorage`.
 
 ## Getting started
 
+The API must be running first:
+
 ```bash
+# terminal 1 — API
+cd "E:\RestApi(JCS)\JCS Steels"
+dotnet run --project "JCS Steels" --urls http://localhost:5292
+
+# terminal 2 — UI
 npm install
-npm run dev      # http://localhost:5173
-npm run build    # production build -> dist/
-npm run preview  # preview the build
+cp .env.example .env     # VITE_API_URL=http://localhost:5292
+npm run dev              # http://localhost:5173
+npm run build            # production build -> dist/
+npm run preview          # preview the build
 ```
+
+### Environment
+
+| Variable | Purpose | Default |
+|---|---|---|
+| `VITE_API_URL` | Base URL of the Daily Pans REST API | `http://localhost:5292` |
+
+## Demo accounts
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | `admin@dailypans.in` | `Admin@123` |
+| Customer | `customer@dailypans.in` | `customer123` |
 
 ## Routes
 
@@ -43,20 +50,40 @@ npm run preview  # preview the build
 | `/` | Home |
 | `/products` | All products (search, filter, sort) |
 | `/category/:id` | Category listing |
-| `/product/:id` | Product detail |
+| `/product/:id` | Product detail + reviews |
 | `/cart` | Shopping cart |
-| `/account` | Account / sign-in / wishlist |
+| `/checkout` | Delivery address, coupon, payment, place order |
+| `/account` | Sign in / register / orders / wishlist / addresses |
+| `/admin` | Admin portal (admin accounts only) |
 | `/about` | Our story |
-| `/bulk-orders` | B2B / corporate gifting |
+| `/bulk-orders` | B2B / corporate gifting enquiry |
 | `/faq` | FAQs |
 | `/privacy` · `/terms` · `/returns` · `/shipping` · `/warranty` | Policies |
 
+## Admin portal
+
+`/admin` is guarded — non-admin sessions are redirected to `/account`. Sections:
+
+- **Dashboard** — revenue, orders, customers, products, discounts given, subscribers
+- **Products** — create / edit / delete, stock and visibility
+- **Orders** — filter by status, change status, view the full order, and record
+  **delivery details** (courier, tracking number & URL, expected / dispatched /
+  delivered dates, notes)
+- **Customers** — order counts and spend, plus a detail view with saved delivery
+  addresses and full order history
+- **Coupons** — create / edit / delete discount codes (percentage or fixed, minimum
+  order, max discount cap, free shipping, usage limit, validity window, public/private)
+- **Bulk Orders** — B2B enquiries with status workflow (New → Contacted → Quoted → Closed)
+- **Messages** — contact-form messages with read/unread state
+
+## Product images
+
+The API stores an optional image URL per product. Seeded products have none, so
+`src/lib/images.js` falls back to the bundled photography by product slug, then by
+category. Paste a URL in the admin product form to override it.
+
 ## Deploy
 
-Includes `vercel.json` with an SPA rewrite so deep links work on Vercel.
-Push to a Git repo and import into Vercel, or run `vercel` from this folder.
-
-## Connecting real Shopify products (optional)
-
-Replace the data functions in `src/data/products.js` with calls to the Shopify
-Storefront API. You'll need your store domain and a Storefront access token.
+Includes `vercel.json` with an SPA rewrite so deep links work on Vercel. Set
+`VITE_API_URL` to your deployed API and add that origin to `Cors:Origins` in the
+API's `appsettings.json`.

@@ -73,7 +73,7 @@ export default function Shipping() {
       </PolicySection>
 
       <PolicySection title="Shipping Inquiries">
-        <p className="flex items-center gap-2"><PackageCheck className="h-5 w-5 text-accent" /> For shipping inquiries, contact us at <a className="text-primary hover:underline" href="mailto:hello@jcshome.in">hello@jcshome.in</a> or +91 93607 33544.</p>
+        <p className="flex items-center gap-2"><PackageCheck className="h-5 w-5 text-accent" /> For shipping inquiries, contact us at <a className="text-primary hover:underline" href="mailto:hello@dailypans.in">hello@dailypans.in</a> or +91 93607 33544.</p>
       </PolicySection>
     </PolicyLayout>
   );

@@ -4,7 +4,7 @@ export default function Terms() {
   return (
     <PolicyLayout eyebrow="Legal" title="Terms of Service" updated="December 2024">
       <PolicySection title="1. Agreement to Terms">
-        <p>By accessing or using the JCS Home website (jcshome.in), you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using this site.</p>
+        <p>By accessing or using the Daily Pans website (dailypans.in), you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using this site.</p>
       </PolicySection>
 
       <PolicySection title="2. Products and Pricing">
@@ -26,7 +26,7 @@ export default function Terms() {
       </PolicySection>
 
       <PolicySection title="6. Intellectual Property">
-        <p>All content on this website, including text, images, logos, product designs, and graphics, is the property of JCS Enterprises and is protected by copyright and trademark laws. You may not reproduce, distribute, or use any content without our written permission.</p>
+        <p>All content on this website, including text, images, logos, product designs, and graphics, is the property of Daily Pans and is protected by copyright and trademark laws. You may not reproduce, distribute, or use any content without our written permission.</p>
       </PolicySection>
 
       <PolicySection title="7. User Conduct">
@@ -41,7 +41,7 @@ export default function Terms() {
       </PolicySection>
 
       <PolicySection title="8. Limitation of Liability">
-        <p>JCS Enterprises shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of our website or products. Our liability is limited to the amount paid for the product in question.</p>
+        <p>Daily Pans shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of our website or products. Our liability is limited to the amount paid for the product in question.</p>
       </PolicySection>
 
       <PolicySection title="9. Governing Law">
@@ -49,8 +49,8 @@ export default function Terms() {
       </PolicySection>
 
       <PolicySection title="10. Contact Information">
-        <p>For questions about these Terms of Service, contact us at <a className="text-primary hover:underline" href="mailto:hello@jcshome.in">hello@jcshome.in</a> or call +91 93607 33544.</p>
-        <p className="text-sm">JCS Enterprises reserves the right to modify these terms at any time. Changes will be effective immediately upon posting.</p>
+        <p>For questions about these Terms of Service, contact us at <a className="text-primary hover:underline" href="mailto:hello@dailypans.in">hello@dailypans.in</a> or call +91 93607 33544.</p>
+        <p className="text-sm">Daily Pans reserves the right to modify these terms at any time. Changes will be effective immediately upon posting.</p>
       </PolicySection>
     </PolicyLayout>
   );

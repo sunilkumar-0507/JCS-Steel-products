@@ -1,10 +1,9 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, SlidersHorizontal } from "lucide-react";
-import { PageHeader } from "@/components/ui.jsx";
+import { PageHeader, ProductGridSkeleton, ErrorState } from "@/components/ui.jsx";
 import ProductCard from "@/components/ProductCard.jsx";
 import { useStore } from "@/context/StoreContext";
-import { categories } from "@/data/products";
 
 const sortOptions = [
   { value: "featured", label: "Featured" },
@@ -14,22 +13,22 @@ const sortOptions = [
 ];
 
 export default function Products() {
-  const { products } = useStore();
+  const { products, categories, catalogLoading, catalogError, reloadCatalog } = useStore();
   const [params, setParams] = useSearchParams();
-  const initialQ = params.get("q") || "";
-  const [query, setQuery] = useState(initialQ);
-  const [cat, setCat] = useState("all");
+  const [query, setQuery] = useState(params.get("q") || "");
+  const [cat, setCat] = useState(params.get("category") || "all");
   const [sort, setSort] = useState("featured");
 
   const filtered = useMemo(() => {
     let list = [...products];
-    if (cat !== "all") list = list.filter((p) => p.category === cat);
+    if (cat !== "all") list = list.filter((p) => p.categoryId === cat);
     if (query.trim()) {
       const q = query.toLowerCase();
       list = list.filter(
         (p) =>
           p.name.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q)
+          (p.description || "").toLowerCase().includes(q) ||
+          (p.features || []).some((f) => f.toLowerCase().includes(q))
       );
     }
     if (sort === "price-asc") list.sort((a, b) => a.price - b.price);
@@ -37,6 +36,14 @@ export default function Products() {
     if (sort === "rating") list.sort((a, b) => b.rating - a.rating);
     return list;
   }, [products, query, cat, sort]);
+
+  const onQueryChange = (value) => {
+    setQuery(value);
+    const next = new URLSearchParams(params);
+    if (value) next.set("q", value);
+    else next.delete("q");
+    setParams(next, { replace: true });
+  };
 
   return (
     <>
@@ -54,10 +61,7 @@ export default function Products() {
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  setParams(e.target.value ? { q: e.target.value } : {});
-                }}
+                onChange={(e) => onQueryChange(e.target.value)}
                 placeholder="Search products..."
                 className="w-full rounded-full border border-border bg-card py-2.5 pl-10 pr-4 text-sm outline-none focus:border-primary"
               />
@@ -90,7 +94,11 @@ export default function Products() {
             ))}
           </div>
 
-          {filtered.length > 0 ? (
+          {catalogLoading ? (
+            <ProductGridSkeleton />
+          ) : catalogError ? (
+            <ErrorState message={catalogError} onRetry={reloadCatalog} />
+          ) : filtered.length > 0 ? (
             <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
               {filtered.map((p) => (
                 <ProductCard key={p.id} product={p} />

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/ui.jsx";
 import { useStore } from "@/context/StoreContext";
+import { api } from "@/lib/api";
 
 const benefits = [
   { icon: BadgePercent, title: "Best Wholesale Rates", text: "Best wholesale rates with no middlemen — factory-direct pricing." },
@@ -25,21 +26,47 @@ const useCases = [
   { icon: Package, title: "Retail & Distribution", text: "Best wholesale rates for retail and distribution partners." },
 ];
 
-const quantities = ["50 - 100 units", "100 - 250 units", "250 - 500 units", "500 - 1000 units", "1000+ units"];
-const interests = ["Insulated Bottles", "Tiffins & Lunch Boxes", "Drinkware", "Storage Containers", "Bowls & Serving", "Festive & Gifting", "Mixed / Custom Selection"];
+const quantities = [
+  { label: "50 - 100 units", value: 100 },
+  { label: "100 - 250 units", value: 250 },
+  { label: "250 - 500 units", value: 500 },
+  { label: "500 - 1000 units", value: 1000 },
+  { label: "1000+ units", value: 2000 },
+];
+
+const blank = {
+  name: "", company: "", email: "", phone: "", gstNumber: "",
+  productId: "", quantity: String(quantities[0].value), requirements: "",
+};
 
 export default function BulkOrders() {
-  const { toast } = useStore();
+  const { categories, products, toast, reportError } = useStore();
+  const [form, setForm] = useState(blank);
   const [submitting, setSubmitting] = useState(false);
 
-  const onSubmit = (e) => {
+  const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  const onSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    setTimeout(() => {
-      setSubmitting(false);
+    try {
+      await api.bulkOrder({
+        name: form.name.trim(),
+        company: form.company.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        gstNumber: form.gstNumber.trim() || null,
+        productId: form.productId || null,
+        quantity: Number(form.quantity) || null,
+        requirements: form.requirements.trim(),
+      });
       toast("Inquiry submitted! Our B2B team will respond within 24 hours.");
-      e.target.reset();
-    }, 900);
+      setForm(blank);
+    } catch (err) {
+      reportError(err, "Could not submit your enquiry.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -125,28 +152,42 @@ export default function BulkOrders() {
           <form onSubmit={onSubmit} className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Contact Person *">
-                <input required className="field" placeholder="Your name" />
+                <input required value={form.name} onChange={set("name")} className="field" placeholder="Your name" />
               </Field>
               <Field label="Company Name">
-                <input className="field" placeholder="Your company name" />
+                <input value={form.company} onChange={set("company")} className="field" placeholder="Your company name" />
               </Field>
               <Field label="Email *">
-                <input required type="email" className="field" placeholder="you@company.com" />
+                <input required type="email" value={form.email} onChange={set("email")} className="field" placeholder="you@company.com" />
               </Field>
               <Field label="Phone *">
-                <input required className="field" placeholder="+91 ..." />
+                <input required value={form.phone} onChange={set("phone")} className="field" placeholder="+91 ..." />
+              </Field>
+              <Field label="GST Number">
+                <input value={form.gstNumber} onChange={set("gstNumber")} className="field" placeholder="33AAAAA0000A1Z5" />
               </Field>
               <Field label="Quantity">
-                <select className="field">
+                <select value={form.quantity} onChange={set("quantity")} className="field">
                   {quantities.map((q) => (
-                    <option key={q}>{q}</option>
+                    <option key={q.value} value={q.value}>
+                      {q.label}
+                    </option>
                   ))}
                 </select>
               </Field>
-              <Field label="Products of Interest">
-                <select className="field">
-                  {interests.map((i) => (
-                    <option key={i}>{i}</option>
+              <Field label="Products of Interest" className="sm:col-span-2">
+                <select value={form.productId} onChange={set("productId")} className="field">
+                  <option value="">Mixed / custom selection</option>
+                  {categories.map((c) => (
+                    <optgroup key={c.id} label={c.name}>
+                      {products
+                        .filter((p) => p.categoryId === c.id)
+                        .map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
+                        ))}
+                    </optgroup>
                   ))}
                 </select>
               </Field>
@@ -154,11 +195,13 @@ export default function BulkOrders() {
             <Field label="Additional Requirements" className="mt-4">
               <textarea
                 rows={4}
+                value={form.requirements}
+                onChange={set("requirements")}
                 className="field resize-none"
                 placeholder="Tell us about your requirements — custom branding, specific products, delivery timeline, etc."
               />
             </Field>
-            <button disabled={submitting} className="btn-primary mt-6 w-full">
+            <button disabled={submitting} className="btn-primary mt-6 w-full disabled:opacity-60">
               {submitting ? "Submitting..." : "Submit Inquiry"}
             </button>
           </form>

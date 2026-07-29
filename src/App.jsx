@@ -10,6 +10,7 @@ import Products from "./pages/Products.jsx";
 import Category from "./pages/Category.jsx";
 import ProductDetail from "./pages/ProductDetail.jsx";
 import Cart from "./pages/Cart.jsx";
+import Checkout from "./pages/Checkout.jsx";
 import Account from "./pages/Account.jsx";
 import Admin from "./pages/Admin.jsx";
 import BulkOrders from "./pages/BulkOrders.jsx";
@@ -46,6 +47,7 @@ export default function App() {
           <Route path="/category/:id" element={<Category />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/account" element={<Account />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/bulk-orders" element={<BulkOrders />} />
